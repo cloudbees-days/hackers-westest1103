@@ -33,8 +33,8 @@ jobs:
         continue-on-error: true
         with:
           token: ${{ secrets.GH_TOKEN }}
-          org-name: ORG_NAME
-          repo-name: PROJECT_NAME
+          org-name: cloudbees-days
+          repo-name: hackers-westest1103
           branch-name: main
           workflow-name: test-and-build-image
           test-type: JUnit
@@ -242,8 +242,8 @@ jobs:
 
           # Dynamic CloudBees context variables
           COMPONENT_ID="${{ cloudbees.component.id }}"
-          ORG_ID="REPLACE_ME_ORG_ID"
-          ENDPOINT_ID="REPLACE_ME_ENDPOINT_ID"
+          ORG_ID="6ca23bee-6bff-4637-9be0-824e2e4fb261"
+          ENDPOINT_ID="f6e2a9c4-cc4a-4cbd-b1fc-102fa4572d2c"
           BRANCH_NAME="${{ cloudbees.scm.branch }}"
 
           echo "🔍 Using component: $COMPONENT_ID"
@@ -251,7 +251,7 @@ jobs:
           echo " 🔍 Using organization: $ORG_ID"
 
           # Build CloudBees Unify REST API URL with branch name
-          API_URL="REPLACE_ME_UNIFY_API/v1/resources/${ORG_ID}/endpoints/${ENDPOINT_ID}/asset-store/components/${COMPONENT_ID}/branches/${BRANCH_NAME}/issues"
+          API_URL="https://api.demo1.cloudbees.io/v1/resources/${ORG_ID}/endpoints/${ENDPOINT_ID}/asset-store/components/${COMPONENT_ID}/branches/${BRANCH_NAME}/issues"
           echo "✅ CloudBees Unify API URL: $API_URL"
 
           # Make vulnerability API call
@@ -432,12 +432,12 @@ jobs:
 
           # Dynamic CloudBees context variables (same as security-check)
           COMPONENT_ID="${{ cloudbees.component.id }}"
-          ORG_ID="REPLACE_ME_ORG_ID"
-          ENDPOINT_ID="REPLACE_ME_ENDPOINT_ID"
+          ORG_ID="6ca23bee-6bff-4637-9be0-824e2e4fb261"
+          ENDPOINT_ID="f6e2a9c4-cc4a-4cbd-b1fc-102fa4572d2c"
           BRANCH_NAME="${{ cloudbees.scm.branch }}"
 
           # Build API URL with branch name
-          API_URL="https://REPLACE_ME_UNIFY_API/v1/resources/${ORG_ID}/endpoints/${ENDPOINT_ID}/asset-store/components/${COMPONENT_ID}/branches/${BRANCH_NAME}/issues"
+          API_URL="https://https://api.demo1.cloudbees.io/v1/resources/${ORG_ID}/endpoints/${ENDPOINT_ID}/asset-store/components/${COMPONENT_ID}/branches/${BRANCH_NAME}/issues"
 
           echo "🎯 Deploy Job Advancement Tracking:"
           echo "   - Current Status: BLOCKED (security-gate running)"
@@ -560,7 +560,7 @@ jobs:
             **Result:** ${{ steps.security-polling.outputs.gate_status == 'PASSED' && 'Enhanced security standards met - deployment approved' || 'Enhanced security standards not met - deployment blocked' }}
           format: MARKDOWN
   deploy:
-    environment: "REPLACE_ME_ENV"
+    environment: "hackers-westest1103-prod"
     steps:
       - name: Checkout
         uses: cloudbees-io/checkout@v1
@@ -573,22 +573,22 @@ jobs:
         uses: cloudbees-io/helm-install@v1
         with:
           chart-location: ${{ cloudbees.workspace }}/chart
-          release-name: PROJECT_NAME
+          release-name: hackers-westest1103
           namespace: ${{ vars.namespace }}
           values: |
             image:
               repository: ${{ vars.DOCKER_USER }}/hackers-organized
               tag: ${{ cloudbees.scm.sha }}
             fmKey: ${{ vars.FM_TOKEN }}
-            useVPC: REPLACE_ME_USE_VPC
-            fmInstance: REPLACE_ME_FM_INSTANCE
-            hostname: PROJECT_NAME.REPLACE_ME_ENV.preview.cb-demos.io
+            useVPC: true
+            fmInstance: demo1.cloudbees.io
+            hostname: hackers-westest1103.hackers-westest1103-prod.preview.cb-demos.io
       - name: Publish evidence
         uses: cloudbees-io/publish-evidence-item@v1
         with:
           content: |-
             ## Deployed environment
-            [Production frontend](https://PROJECT_NAME.REPLACE_ME_ENV.preview.cb-demos.io/)
+            [Production frontend](https://hackers-westest1103.hackers-westest1103-prod.preview.cb-demos.io/)
 
             Running hackers-organized:${{ cloudbees.scm.sha }}
           format: MARKDOWN
@@ -596,7 +596,7 @@ jobs:
         uses: https://github.com/cloudbees-io/register-deployed-artifact@v2
         with:
           artifact-id: ${{ needs.build-container-image.outputs.artifact-id }}
-          target-environment: "REPLACE_ME_ENV"
+          target-environment: "hackers-westest1103-prod"
     needs:
       - security-gate
       - build-container-image
