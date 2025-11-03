@@ -1,4 +1,4 @@
-# PROJECT_NAME
+# hackers-westest1103
 
 This app is a Vue.js-based clone of [Hacker News](https://hn.ycombinator.com).
 
